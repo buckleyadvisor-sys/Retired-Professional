@@ -1631,7 +1631,10 @@
         </ul>
       </div>
 
-      <form class="form reveal" id="contactForm" action="mailto:mark.buckley@prudential.com" method="post" enctype="text/plain">
+      <form class="form reveal" id="contactForm" action="https://formspree.io/f/xzeekwna" method="POST">
+        <input type="hidden" name="_subject" value="New inquiry from theretiredprofessional.com">
+        <input type="hidden" name="source" value="The Retired Professional website">
+        <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
         <div class="form-row">
           <div class="form-group">
             <label for="first">First Name</label>
@@ -1672,10 +1675,10 @@
         <button type="submit" class="form-submit">
           Send Message
         </button>
+        <p class="form-status" id="formStatus" role="status" aria-live="polite" style="margin-top:14px;min-height:1.2em"></p>
 
         <p class="form-note">
-          Submissions open your email client. Your information is used only to respond
-          to your inquiry and is not shared.
+          Your information is used only to respond to your inquiry and is not shared.
         </p>
       </form>
     </div>
@@ -1830,6 +1833,34 @@
   if (mobileToggle) {
     mobileToggle.addEventListener('click', () => {
       alert('Mobile menu would open here. For now, scroll through the page sections directly.');
+    });
+  }
+
+  // Contact form: send through Formspree without leaving the page
+  const contactForm = document.getElementById('contactForm');
+  if (contactForm) {
+    const status = document.getElementById('formStatus');
+    const btn = contactForm.querySelector('.form-submit');
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const label = btn.innerHTML;
+      btn.disabled = true; btn.innerHTML = 'Sending...';
+      status.textContent = '';
+      try {
+        const res = await fetch(contactForm.action, { method: 'POST', body: new FormData(contactForm), headers: { 'Accept': 'application/json' } });
+        if (res.ok) {
+          contactForm.reset();
+          status.textContent = "Thanks, your message was sent. I'll get back to you personally.";
+          status.style.color = '#C49A1A';
+        } else {
+          status.textContent = 'Something went wrong. Please try again, or email mark.buckley@prudential.com.';
+          status.style.color = '#e07a6a';
+        }
+      } catch (err) {
+        status.textContent = 'Something went wrong. Please try again, or email mark.buckley@prudential.com.';
+        status.style.color = '#e07a6a';
+      }
+      btn.disabled = false; btn.innerHTML = label;
     });
   }
 </script>
