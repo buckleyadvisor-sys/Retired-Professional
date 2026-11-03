@@ -182,6 +182,7 @@
   }
   .nav-cta:hover { background: var(--gold); color: var(--bg); }
   .nav-mobile-toggle { display: none; }
+  .nav-links li.nav-mobile-cta { display: none; }
 
   @media (max-width: 900px) {
     .nav-links, .nav-cta { display: none; }
@@ -193,7 +194,26 @@
     }
     .nav-mobile-toggle span {
       width: 24px; height: 1.5px; background: var(--gold); display: block;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
+    .nav-mobile-toggle { background: none; border: 0; cursor: pointer; }
+    .nav.open { background: rgba(8, 17, 31, 0.98); }
+    .nav.open .nav-links {
+      display: flex; flex-direction: column; gap: 0;
+      position: absolute; top: 100%; left: 0; right: 0;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+      padding: 0.5rem 2rem 1rem;
+    }
+    .nav.open .nav-links li { border-bottom: 1px solid var(--border-soft); }
+    .nav.open .nav-links a { display: block; padding: 1rem 0; font-size: 0.95rem; color: var(--text); }
+    .nav.open .nav-links li.nav-mobile-cta { display: block; border-bottom: 0; padding-top: 1rem; }
+    .nav.open .nav-links li.nav-mobile-cta a {
+      text-align: center; border: 1px solid var(--gold); color: var(--gold-light);
+      padding: 0.9rem 1rem; letter-spacing: 0.15em; font-size: 0.8rem; font-weight: 600;
+    }
+    .nav.open .nav-mobile-toggle span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav.open .nav-mobile-toggle span:nth-child(2) { opacity: 0; }
+    .nav.open .nav-mobile-toggle span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
   }
 
   /* =====================================================================
@@ -1166,15 +1186,16 @@
       <span class="nav-brand-mark">MB</span>
       <span>Mark Buckley</span>
     </a>
-    <ul class="nav-links">
+    <ul class="nav-links" id="navLinks">
       <li><a href="#book">The Book</a></li>
       <li><a href="#decisions">Five Decisions</a></li>
       <li><a href="#author">About</a></li>
       <li><a href="#inside">Inside</a></li>
       <li><a href="#contact">Contact</a></li>
+      <li class="nav-mobile-cta"><a href="#schedule">Schedule a Call</a></li>
     </ul>
     <a href="#schedule" class="nav-cta">Schedule a Call</a>
-    <button class="nav-mobile-toggle" aria-label="Menu">
+    <button class="nav-mobile-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
       <span></span><span></span><span></span>
     </button>
   </div>
@@ -1831,9 +1852,14 @@
   // Mobile menu toggle (simple show/hide)
   const mobileToggle = document.querySelector('.nav-mobile-toggle');
   if (mobileToggle) {
-    mobileToggle.addEventListener('click', () => {
-      alert('Mobile menu would open here. For now, scroll through the page sections directly.');
-    });
+    const setMenu = (open) => {
+      nav.classList.toggle('open', open);
+      mobileToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      mobileToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    };
+    mobileToggle.addEventListener('click', () => setMenu(!nav.classList.contains('open')));
+    nav.querySelectorAll('.nav-links a, .nav-cta').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
   }
 
   // Contact form: send through Formspree without leaving the page
